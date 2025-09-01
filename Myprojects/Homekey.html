@@ -7,6 +7,10 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" type="text/css" href="../style.css">
     <title>Project: Homekey Emulation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" integrity="" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="" crossorigin="anonymous" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js" defer></script>
 </head>
 <body>
     <section class="project-detail">
@@ -32,15 +36,137 @@
     <div class="project-description">
         <h2>About this Project</h2>
         <p>
-            This project replicates Apple’s HomeKey protocol for smart locks using ESP32
-            and NFC technology. It allows secure access management and demonstrates
-            practical expertise in IoT, embedded systems, and security protocols.
+            A practical emulator and exploration of Apple’s HomeKey ecosystem built using ESP32 hardware,
+            Home Assistant, and ESPHome. I used the <code>homekey-esp32</code> library to prototype HomeKey-style
+            interactions and integrated the device into Home Assistant via HomeKit/ESPHome bridges to demonstrate
+            real-world automation scenarios. <br> (unlock triggers, presence-based access, and logging).
         </p>
         <p>
-            Key highlights include NFC authentication, ESP32-based control, and smooth
-            integration with smart lock hardware.
+            This project began as a reverse-engineering exercise of the HomeKey protocol—while the full
+            reverse-engineer was not completed, I implemented a working ESP32-based prototype, flashed firmware
+            to the device, and built the Home Assistant flows that prove end-to-end interactions. The repo contains
+            my ESPHome configs, wiring diagrams, and the flashed firmware examples.
         </p>
     </div>
+
+    <div class="project-resources">
+    <section class="code-section">
+      <h3>ESPHome YAML (example)</h3>
+      <pre class="language-yaml"><code># Homekey-ESPHome example (simplified)
+esphome:
+  name: try
+  friendly_name: TRY
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+    version: 5.2.1
+    platform_version: 6.7.0
+    sdkconfig_options: 
+      CONFIG_COMPILER_OPTIMIZATION_SIZE: y 
+      CONFIG_LWIP_MAX_SOCKETS: "16"
+      CONFIG_MBEDTLS_HKDF_C: y 
+
+# Enable logging
+logger:
+
+external_components:
+  - source: github://rednblkx/HAP-ESPHome@main
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "NHXd3e1C5e19RQe7BMXDQim+E71Tf7eQscXPXhDwRuw="
+
+ota:
+  - platform: esphome
+    password: "8a98bb393e28a2a6b000d204a41c8690"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Tru Fallback Hotspot"
+    password: "S55HgPX0EIsL"
+
+captive_portal:
+
+spi:
+  clk_pin: GPIO18
+  miso_pin: GPIO19
+  mosi_pin: GPIO23
+
+pn532_spi:
+  id: nfc_spi_module
+  cs_pin: GPIO5
+  update_interval: 100ms
+
+homekit_base:
+  setup_code: '466-37-726'
+
+homekit:
+  lock:
+    - id: cupboard_lock
+      nfc_id: nfc_spi_module
+      on_hk_success:
+        lambda: |-
+          ESP_LOGI("INFO", "IssuerID: %s", x.c_str());
+          ESP_LOGI("INFO", "EndpointID: %s", y.c_str());
+          if (id(cupboard_lock).state == LOCK_STATE_LOCKED) {
+            id(cupboard_lock).unlock();
+          } else {
+            id(cupboard_lock).lock();
+          }
+      on_hk_fail:
+        lambda: |-
+          ESP_LOGI("ERROR", "Authorizing HomeKit lock failed");
+      hk_hw_finish: "SILVER"
+
+button:
+- platform: homekit_base
+  factory_reset:
+    name: "Reset Homekit pairings"
+
+lock:
+  - platform: template
+    id: cupboard_lock
+    name: "HomeKit Cupboard Lock"
+    optimistic: True
+    on_lock:
+    - logger.log: "Door Locked!"
+    - switch.turn_off: electronic_lock
+    on_unlock:
+    - logger.log: "Door Unlocked!"
+    - switch.turn_on: electronic_lock
+    - delay:  100ms
+    - switch.turn_off: electronic_lock
+
+output:
+  - platform: gpio
+    pin: GPIO25
+    id: 'lock_out'
+switch:
+  - platform: output
+    id: electronic_lock
+    output: 'lock_out'
+
+  - platform: gpio
+    pin: GPIO22
+    inverted: true
+    name: "Gate_lock"
+</code></pre>
+    </section>
+    <section class="wiring-section">
+        <h3>Wiring & Photos</h3>
+        <div class="gallery">
+            <img src="../img/wiring-thumb-1.jpg" alt="Wiring diagram 1">
+            <img src="../img/wiring-thumb-2.jpg" alt="Wiring photo 2">
+        </div>
+    </section>
+  </div>
 </section>
 
 </body>
