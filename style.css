@@ -620,8 +620,8 @@
    gap: 1rem; 
    margin-top: 1rem; 
    flex-wrap: wrap; 
-   justify-content: center; /* Center images horizontally */
-   align-items: center;     /* Center images vertically if needed */
+   justify-content: center; 
+   align-items: center;    
 }
 
 .gallery img {
@@ -662,4 +662,120 @@
    text-align:center;
    padding-bottom: 5px;
    font-size: 2rem;
+}
+
+/* Co-curricular page layout */
+.co-curricular {
+  padding: 4rem 9%;
+  background: var(--second-bg-color);
+  color: var(--text-color);
+}
+
+.activity {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+  margin-bottom: 4rem;
+  flex-wrap: wrap; 
+}
+.activity .left {
+  flex: 1;
+  min-width: 320px;
+}
+
+/* Title at left column */
+.activity-title {
+  font-size: 3.2rem;
+  margin-bottom: 1.6rem;
+  text-transform: none;
+   text-align: center;
+}
+
+.activity-title1 {
+   padding-top: 150px;
+   font-size: 3.2rem;
+   margin-bottom: 1.6rem;
+   text-transform: none;
+   text-align: center;
+}
+
+/* 2x2 photo grid */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: minmax(140px, 1fr);
+  gap: 1rem;
+}
+
+/* Each photo wrapper */
+.photo-grid figure {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+}
+
+/* Photos */
+.photo-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s ease;
+}
+
+/* small hover lift */
+.photo-grid img:hover {
+  transform: scale(1.03);
+}
+
+/* Right column: subheading + description */
+.activity .right {
+  flex: 1.2;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* vertically center text beside photos */
+  padding: 0.4rem 1rem;
+}
+
+.activity-sub {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+     text-align: center;
+}
+
+.activity-desc {
+  font-size: 1.7rem;
+  line-height: 1.6;
+  color: var(--text-color);
+     text-align: center;
+}
+
+/* Repeat spacing */
+.activity + .activity {
+  margin-top: 2.5rem;
+}
+
+/* Responsive: on narrow screens stack left above right */
+@media (max-width: 900px) {
+  .activity {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .activity .right {
+    justify-content: flex-start;
+    padding: 0;
+  }
+  .photo-grid {
+    grid-auto-rows: 160px;
+  }
+}
+
+/* Smaller phones: reduce sizes */
+@media (max-width: 420px) {
+  .activity-title { font-size: 2.4rem; }
+  .activity-sub { font-size: 1.8rem; }
+  .activity-desc { font-size: 1.5rem; }
+  .photo-grid { gap: .6rem; }
 }
