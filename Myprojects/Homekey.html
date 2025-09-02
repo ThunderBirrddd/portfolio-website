@@ -90,11 +90,11 @@ external_components:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "NHXd3e1C5e19RQe7BMXDQim+E71Tf7eQscXPXhDwRuw="
+    key: "!secret api_encryption_key"
 
 ota:
   - platform: esphome
-    password: "8a98bb393e28a2a6b000d204a41c8690"
+    password: "!secret ota_password"
 
 wifi:
   ssid: !secret wifi_ssid
